@@ -1,49 +1,60 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <vector>
 
 using namespace std;
+
+struct GameResult {
+    int number;
+    int attempts;
+    time_t timestamp;
+};
+
+void printResults(const vector<GameResult>& results) {
+    cout << "История игр:" << endl;
+    for (const auto& result : results) {
+        cout << "Число: " << result.number << ", попыток: " << result.attempts << ", дата: " << ctime(&result.timestamp);
+    }
+}
 
 int main()
 {
     srand(time(0)); // инициализация генератора случайных чисел
 
     char answer;
+    vector<GameResult> results;
+
     do {
-        int min = 1;
-        int max = 1000;
-        int guess;
+        int min, max;
+        cout << "Введите диапазон чисел, из которых я буду загадывать число (минимум и максимум через пробел): ";
+        cin >> min >> max;
+
+        int number = rand() % (max - min + 1) + min; // генерация числа в диапазоне от min до max
         int attempts = 0;
 
-        cout << "Загадайте число от 1 до 1000, а я попробую его угадать." << endl;
+        cout << "Загадано число от " << min << " до " << max << ". Попробуйте угадать его." << endl;
 
         do {
-            guess = rand() % (max - min + 1) + min; // генерация числа в диапазоне от min до max
-            cout << "Это число " << guess << "? (y/n) ";
-            cin >> answer;
+            int guess;
+            cout << "Введите ваше предположение: ";
+            cin >> guess;
             attempts++;
-            if (answer == 'n') {
-                cout << "Мое число больше или меньше загаданного?" << endl;
-                cout << "Введите 'b' если ваше число больше, 'l' если меньше: ";
-                cin >> answer;
-                if (answer == 'b') {
-                    min = guess + 1;
-                } else if (answer == 'l') {
-                    max = guess - 1;
-                } else {
-                    cout << "Некорректный ответ. Попробуйте еще раз." << endl;
-                    attempts--;
-                }
-            } else if (answer != 'y') {
-                cout << "Некорректный ответ. Попробуйте еще раз." << endl;
-                attempts--;
+            if (guess < number) {
+                cout << "Мое число больше." << endl;
+            } else if (guess > number) {
+                cout << "Мое число меньше." << endl;
             }
-        } while (answer != 'y');
+        } while (number != guess);
 
-        cout << "Я угадал число " << guess << " за " << attempts << " попыток." << endl;
+        cout << "Вы угадали число " << number << " за " << attempts << " попыток." << endl;
+        results.push_back({number, attempts, time(0)});
+
         cout << "Хотите сыграть еще раз? (y/n) ";
         cin >> answer;
     } while (answer == 'y');
+
+    printResults(results);
 
     cout << "Спасибо за игру!" << endl;
 
